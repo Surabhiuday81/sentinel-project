@@ -1,0 +1,29 @@
+services:
+  # The Redis Broker
+  - type: redis
+    name: broker
+    ipAllowList: [] # Only internal access
+
+  # The Producer (Node.js)
+  - type: worker
+    name: producer
+    env: docker
+    dockerfile_path: ./producer/Dockerfile
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          name: broker
+          type: redis
+          property: host
+
+  # The Consumer (Python)
+  - type: worker
+    name: consumer
+    env: docker
+    dockerfile_path: ./consumer/Dockerfile
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          name: broker
+          type: redis
+          property: host
